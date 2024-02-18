@@ -1007,8 +1007,10 @@ public class BpfNetMaps {
         // deletion. netd and skDestroyListener could delete CookieTagMap entry concurrently.
         // So using Set to count the number of entry in the map.
         Set<K> keySet = new ArraySet<>();
-        map.forEach((k, v) -> keySet.add(k));
-        return keySet.size();
+        if (sEnableJavaBpfMap) {
+            map.forEach((k, v) -> keySet.add(k)); 
+        }
+        return keySet.size();       
     }
 
     /** Callback for StatsManager#setPullAtomCallback */
