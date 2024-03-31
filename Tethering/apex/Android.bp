@@ -18,6 +18,13 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
+prebuilt_etc {
+    name: "TetheringOutOfProcessFlag",
+    src: "out-of-process",
+    filename_from_src: true,
+    sub_dir: "flag",
+}
+
 // Defaults to enable/disable java targets which uses development APIs. "enabled" may have a
 // different value depending on the branch.
 java_defaults {
@@ -119,6 +126,7 @@ apex {
     prebuilts: [
         "ot-daemon.init.34rc",
         "current_sdkinfo",
+        "TetheringOutOfProcessFlag",
     ],
     manifest: "manifest.json",
     key: "com.android.tethering.key",
