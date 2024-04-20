@@ -82,6 +82,10 @@ int bpfGetUidStatsInternal(uid_t uid, StatsValue* stats,
 
 int bpfGetUidStats(uid_t uid, StatsValue* stats) {
     static BpfMapRO<uint32_t, StatsValue> appUidStatsMap(APP_UID_STATS_MAP_PATH);
+    if (!appUidStatsMap.isValid() || !appUidStatsMap.isOk()) {
+        ALOGE("get map fd failed: %s", strerror(errno));
+        return -errno;
+    }
     return bpfGetUidStatsInternal(uid, stats, appUidStatsMap);
 }
 
@@ -113,6 +117,10 @@ int bpfGetIfaceStatsInternal(const char* iface, StatsValue* stats,
 }
 
 int bpfGetIfaceStats(const char* iface, StatsValue* stats) {
+    if (!getIfaceStatsMap().isValid() || !getIfaceStatsMap().isOk()) {
+        ALOGE("get map fd failed: %s", strerror(errno));
+        return -errno;
+    }
     return bpfGetIfaceStatsInternal(iface, stats, getIfaceStatsMap(), ifindex2name);
 }
 
@@ -128,6 +136,10 @@ int bpfGetIfIndexStatsInternal(uint32_t ifindex, StatsValue* stats,
 }
 
 int bpfGetIfIndexStats(int ifindex, StatsValue* stats) {
+    if (!getIfaceStatsMap().isValid() || !getIfaceStatsMap().isOk()) {
+        ALOGE("get map fd failed: %s", strerror(errno));
+        return -errno;
+    }
     return bpfGetIfIndexStatsInternal(ifindex, stats, getIfaceStatsMap());
 }
 
@@ -193,8 +205,23 @@ int parseBpfNetworkStatsDetailInternal(std::vector<stats_line>& lines,
 
 int parseBpfNetworkStatsDetail(std::vector<stats_line>* lines) {
     static BpfMapRO<uint32_t, uint32_t> configurationMap(CONFIGURATION_MAP_PATH);
+    if (!configurationMap.isValid() || !configurationMap.isOk()) {
+        ALOGE("get map fd failed: %s", strerror(errno));
+        return -errno;
+    }
+
     static BpfMap<StatsKey, StatsValue> statsMapA(STATS_MAP_A_PATH);
+    if (!statsMapA.isValid() || !statsMapA.isOk()) {
+        ALOGE("get map fd failed: %s", strerror(errno));
+        return -errno;
+    }
+
     static BpfMap<StatsKey, StatsValue> statsMapB(STATS_MAP_B_PATH);
+    if (!statsMapB.isValid() || !statsMapB.isOk()) {
+        ALOGE("get map fd failed: %s", strerror(errno));
+        return -errno;
+    }
+
     if (!configurationMap.isOk()) return -1;
     auto configuration = configurationMap.readValue(CURRENT_STATS_MAP_CONFIGURATION_KEY);
     if (!configuration.ok()) {
@@ -269,6 +296,10 @@ int parseBpfNetworkStatsDevInternal(std::vector<stats_line>& lines,
 }
 
 int parseBpfNetworkStatsDev(std::vector<stats_line>* lines) {
+    if (!getIfaceStatsMap().isValid() || !getIfaceStatsMap().isOk()) {
+        ALOGE("get map fd failed: %s", strerror(errno));
+        return -errno;
+    }
     return parseBpfNetworkStatsDevInternal(*lines, getIfaceStatsMap(), ifindex2name);
 }
 
